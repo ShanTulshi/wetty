@@ -6,14 +6,13 @@ var server = require('socket.io');
 var pty = require('pty.js');
 var fs = require('fs');
 
-module.exports = function(httpserv, opts) {
+module.exports = function(httpserv, router, opts) {
   var runhttps = false;
   var sshport = 22;
   var sshhost = 'localhost';
   var sshauth = 'password,keyboard-interactive';
-  var sockpath = '/wetty/socket.io';
+  // var sockpath = '/wetty/socket.io/';
   var globalsshuser = '';
-  var route = express.Router();
 
   if (opts.sshport) {
       sshport = opts.sshport;
@@ -42,26 +41,29 @@ module.exports = function(httpserv, opts) {
     sockpath = opts.path;
   }
 
+  // GIB STACKTRACE PLS
   // process.on('uncaughtException', function(e) {
   //     console.error('Error: ' + e);
   // });
 
-  route.get('/ssh/:user', function(req, res) {
+  router.get('/ssh/:user', function(req, res) {
       res.sendfile(__dirname + '/public/wetty/index.html');
   });
-  route.use('/', express.static(path.join(__dirname, 'public')));
+  router.use('/', express.static(path.join(__dirname, 'public/wetty')));
 
   // if (runhttps) {
-  //     httpserv = https.createServer(opts.ssl, route).listen(opts.port, function() {
+  //     httpserv = https.createServer(opts.ssl, router).listen(opts.port, function() {
   //         console.log('https on port ' + opts.port);
   //     });
   // } else {
-  //     httpserv = http.createServer(route).listen(opts.port, function() {
+  //     httpserv = http.createServer(router).listen(opts.port, function() {
   //         console.log('http on port ' + opts.port);
   //     });
   // }
 
-  var io = server(httpserv, {path: sockpath});
+  // var io = server(httpserv, {path: sockpath});
+  var io = server(httpserv);
+  console.log(io);
   io.on('connection', function(socket){
       var sshuser = '';
       var request = socket.request;
@@ -103,5 +105,5 @@ module.exports = function(httpserv, opts) {
           term.end();
       });
   })
-  return route;
+  return router;
 }
