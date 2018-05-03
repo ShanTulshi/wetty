@@ -6,7 +6,9 @@ var server = require('socket.io');
 var pty = require('pty.js');
 var fs = require('fs');
 
-module.exports = function(httpserv, router, opts) {
+var router = express.Router();
+
+module.exports = function(httpserv, opts) {
   var runhttps = false;
   var sshport = 22;
   var sshhost = 'localhost';
@@ -62,8 +64,7 @@ module.exports = function(httpserv, router, opts) {
   // }
 
   // var io = server(httpserv, {path: sockpath});
-  var io = server(httpserv);
-  console.log(io);
+  var io = server(httpserv, { path: '/wetty/socket.io' });
   io.on('connection', function(socket){
       var sshuser = '';
       var request = socket.request;
